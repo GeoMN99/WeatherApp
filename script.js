@@ -5,7 +5,7 @@ const cityInput = document.getElementById('cityInput');
 const searchBtn = document.getElementById('searchBtn');
 const weatherCard = document.getElementById('weatherCard');
 const errorMsg = document.getElementById('errorMsg');
-const forecastContainer = document.getElementById('foreccast');
+const forecastContainer = document.getElementById('forecast');
 
 // Load last searched city from localStorage
 window.addEventListener('load', () => {
@@ -39,7 +39,7 @@ async function getWeather(city) {
 
         const data = await response.json();
         displayWeather(data);
-        getWeather(city);
+        getForecast(city);
         localStorage.setItem('lastCity', city);
 
     } catch (error) {
@@ -63,8 +63,8 @@ async function getForecast(city) {
 
 function displayWeather(data) {
     document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
-    document.getElementById('data').textContent = new Date().toDateString();
-    document.getElementById('temparature').textContent = `${Math.round(data.main.temp)}°C`;
+    document.getElementById('date').textContent = new Date().toDateString();
+    document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
     document.getElementById('description').textContent = data.weather[0].description;
     document.getElementById('humidity').textContent = `${data.main.humidity}%`;
     document.getElementById('wind').textContent = `${data.wind.speed} m/s`;
@@ -79,7 +79,7 @@ function displayForecast(data) {
     //Get one forecast per day (every 8th item = 24hrs apart)
     const daily = data.list.filter((_, index) => index % 8 === 0).slice(0, 5);
 
-    forecastContainer.ATTRIBUTE_NODE.innerHTML = daily.map(day => `
+    forecastContainer.innerHTML = daily.map(day => `
         <div class="forecast-day">
           <p>${new Date(day.dt * 1000).toLocaleDateString('en', { weekday: 'short' })}</p>
           <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="${day.weather[0].description}" />
