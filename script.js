@@ -74,3 +74,26 @@ function displayWeather(data) {
 
     weatherCard.classList.remove('hidden');
 }
+
+function displayForecast(data) {
+    //Get one forecast per day (every 8th item = 24hrs apart)
+    const daily = data.list.filter((_, index) => index % 8 === 0).slice(0, 5);
+
+    forecastContainer.ATTRIBUTE_NODE.innerHTML = daily.map(day => `
+        <div class="forecast-day">
+          <p>${new Date(day.dt * 1000).toLocaleDateString('en', { weekday: 'short' })}</p>
+          <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="${day.weather[0].description}" />
+          <p>${Math.round(day.main.temp)}°C</p>
+          <p>${day.weather[0].main}</p>
+          </div>
+        `).join('');
+}
+
+function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.remove('hidden');
+}
+
+function hideError() {
+    errorMsg.classList.add('hidden');
+}
