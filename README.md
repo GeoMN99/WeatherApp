@@ -13,9 +13,9 @@ A clean, responsive weather application built with vanilla HTML, CSS, and JavaSc
 
 ## 📸 Screenshots
 
-![Home Screen](WeatherApp - Opera 27_05_2026 17_12_31.png)
-![Forecast View](WeatherApp - Opera 27_05_2026 17_03_34.png)
-![Forcast View](WeatherApp - Opera 27_05_2026 17_02_47.png)
+![Home Screen](screenshot-home.png)
+![Forecast View](screenshot-forecast.png)
+![Forcast View](screenshot-forecast2.png)
 
 ---
 
