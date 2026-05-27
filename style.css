@@ -129,3 +129,12 @@ h1 {
     text-align: center;
     font-size: 0.85rem;
 }
+
+.forecast-day img {
+    width: 50px;
+    height: 50px;
+}
+
+.forecast-day p {
+    color: rgba(255,255,255,0.7);
+}
