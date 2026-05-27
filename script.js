@@ -55,6 +55,11 @@ async function getForecast(city) {
            `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric` 
         );
         const data = await response.json();
+
+        // Show today's rain probability from first forecast entry
+        const rainChance = Math.round((data.list[0].pop || 0) * 100);
+        document.getElementById('rainChance').textContent = `${rainChance}%`;
+
         displayForecast(data);
     } catch (error) {
         console.error('Forecast error:', error);

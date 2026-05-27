@@ -1,6 +1,6 @@
 # ⛅ Weather App
 
-A clean and responsive weather application built with vanilla HTML, CSS, and JavaScript. Search for any city in the world and get real-time weather data powered by the OpenWeatherMap API.
+A clean and responsive weather application built with HTML, CSS, and JavaScript. Search for any city in the world and get real-time weather data powered by the OpenWeatherMap API.
 
 ---
 
@@ -56,7 +56,7 @@ A clean and responsive weather application built with vanilla HTML, CSS, and Jav
 ## 📁 Project Structure
  
 ```
-Weather-App/
+WeatherApp/
 ├── index.html
 ├── style.css
 ├── script.js
@@ -67,7 +67,7 @@ Weather-App/
  
 ## 📸 Screenshots
  
- 
+
 _Coming soon_
  
 ---
