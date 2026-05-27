@@ -75,3 +75,33 @@ h1 {
 .weather-card h2 {
     font-size: 1.8rem;
 }
+
+.weather-card p {
+    color: rgba(255,255,255,0.7);
+    margin: 4px 0;
+}
+
+.weather-card img {
+    width: 100px;
+    height: 100px;
+}
+.weather-card h3 {
+    font-size: 3rem;
+    margin: 8px 0;
+}
+
+#description {
+    text-transform: capitalize;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.details {
+    display: flex;
+    justify-content: safe;
+    background: rgba(255,255,255,0.5);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
