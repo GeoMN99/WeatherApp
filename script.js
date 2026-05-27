@@ -48,3 +48,29 @@ async function getWeather(city) {
         forecastContainer.innerHTML = '';
     }
 }
+
+async function getForecast(city) {
+    try {
+        const response = await fetch(
+           `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric` 
+        );
+        const data = await response.json();
+        displayForecast(data);
+    } catch (error) {
+        console.error('Forecast error:', error);
+    }
+}
+
+function displayWeather(data) {
+    document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
+    document.getElementById('data').textContent = new Date().toDateString();
+    document.getElementById('temparature').textContent = `${Math.round(data.main.temp)}°C`;
+    document.getElementById('description').textContent = data.weather[0].description;
+    document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+    document.getElementById('wind').textContent = `${data.wind.speed} m/s`;
+    document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
+    document.getElementById('weatherIcon').src = 
+      `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+
+    weatherCard.classList.remove('hidden');
+}
