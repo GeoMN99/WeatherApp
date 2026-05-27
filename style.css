@@ -42,3 +42,36 @@ h1 {
     color: #fff;
     outline: none;
 }
+
+.search-box input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+.search-box button:hover {
+    background: #c73652;
+}
+.error {
+    background: rgba(233, 69, 96, 0.2);
+    border: 1px solid #e94560;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.hidden {
+    display: none;
+}
+
+.weather-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.weather-card h2 {
+    font-size: 1.8rem;
+}
