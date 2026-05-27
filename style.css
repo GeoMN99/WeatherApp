@@ -102,5 +102,30 @@ h1 {
     background: rgba(255,255,255,0.5);
     border-radius: 12px;
     padding: 16px;
-    margin-bottom: 16px;
+    margin-top: 16px;
+}
+
+.details.div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.details div span:first-child {
+    color: rgba(255,255,255,0.6);
+}
+
+.forecast {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.forecast-day {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    font-size: 0.85rem;
 }
