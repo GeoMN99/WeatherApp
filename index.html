@@ -13,6 +13,21 @@
             <input type="text" id="cityInput" placeholder="Enter city name.." />
             <button id="searchBtn">Search</button>
         </div>
+        <div id="errorMsg" class="error hidden"></div>
+        <div id="weatherCard" class="weather-card hidden">
+            <h2 id="cityName"></h2>
+            <p id="date"></p>
+            <img id="weatherIcon" src="" alt="Weather icon" />
+            <h3 id="temperature"></h3>
+            <p id="description"></p>
+            <div class="details">
+                <div><span>💧 Humidity</span><span id="humidity"></span></div>
+                <div><span>💨 Wind</span><span id="wind"></span></div>
+                <div><span>🌡Feels Like</span><span id="feelsLike"></span></div>
+            </div>
+        </div>
+        <div id="forecast" class="forecast"></div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>
