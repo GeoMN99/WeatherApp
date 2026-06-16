@@ -148,6 +148,14 @@ async function getAltitude(lat, lon) {
     }
 }
 
+// Convert wind degrees to compass direction
+function getWindDirection(degrees) {
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const index = Math.round(degrees /45) % 8;
+    return directions[index];
+}
+
+// Display current weather
 async function displayWeather(data) {
     document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
     document.getElementById('date').textContent = new Date().toDateString();
@@ -158,6 +166,22 @@ async function displayWeather(data) {
     document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
     document.getElementById('weatherIcon').src = 
         `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+
+    // Visibility - convert meters to KM
+    const visibilityKm = (data.visibility / 1000).toFixed(1);
+    document.getElementById('visibility').textContent = `${visibilityKm} km`;
+
+    // Sunnrise & Sunset
+    const sunrise = new Date(data.sys.sunrise * 1000).toLocaleDateString('en', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    const sunset = new Date(data.sys.sunset * 1000).toLocaleDateString('en', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    document.getElementById('sunrise').textContent = sunrise;
+    document.getElementById('sunset').textContent = sunset;
 
     // Fetch and display altitude
     const altitudeEl = document.getElementById('altitude');
