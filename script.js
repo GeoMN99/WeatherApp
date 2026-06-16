@@ -163,6 +163,7 @@ async function displayWeather(data) {
     document.getElementById('description').textContent = data.weather[0].description;
     document.getElementById('humidity').textContent = `${data.main.humidity}%`;
     document.getElementById('wind').textContent = `${data.wind.speed} m/s`;
+    document.getElementById('windDirection').textContent = getWindDirection(data.wind.deg);
     document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
     document.getElementById('weatherIcon').src = 
         `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
@@ -172,11 +173,11 @@ async function displayWeather(data) {
     document.getElementById('visibility').textContent = `${visibilityKm} km`;
 
     // Sunnrise & Sunset
-    const sunrise = new Date(data.sys.sunrise * 1000).toLocaleDateString('en', {
+    const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('en', {
         hour: '2-digit',
         minute: '2-digit'
     });
-    const sunset = new Date(data.sys.sunset * 1000).toLocaleDateString('en', {
+    const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString('en', {
         hour: '2-digit',
         minute: '2-digit'
     });
