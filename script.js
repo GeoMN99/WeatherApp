@@ -54,10 +54,10 @@ locationBtn.addEventListener('click', () => {
     );
 });
 
-//Fetch weather by city name
+// Fetch weather by city name
 async function getWeather(city) {
     try {
-        hideError ();
+        hideError();
         const response = await fetch(
             `${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric`
         );
@@ -70,16 +70,16 @@ async function getWeather(city) {
         localStorage.setItem('lastCity', city);
 
     } catch (error) {
-        showError('City not found. PLease try again.');
+        showError('City not found. Please try again.');
         weatherCard.classList.add('hidden');
         forecastContainer.innerHTML = '';
     }
 }
 
-//Fetch weather by coordinates
+// Fetch weather by coordinates
 async function getWeatherByCoords(lat, lon) {
     try {
-        hideError ();
+        hideError();
         const response = await fetch(
             `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
         );
@@ -99,15 +99,14 @@ async function getWeatherByCoords(lat, lon) {
     }
 }
 
-//fetch forecast by city name
+// Fetch forecast by city name
 async function getForecast(city) {
     try {
         const response = await fetch(
-           `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric` 
+            `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric`
         );
         const data = await response.json();
 
-        // Show today's rain probability from first forecast entry
         const rainChance = Math.round((data.list[0].pop || 0) * 100);
         document.getElementById('rainChance').textContent = `${rainChance}%`;
 
@@ -117,25 +116,24 @@ async function getForecast(city) {
     }
 }
 
-// Fetch forecast by coordinates (used when getting weather by location)
+// Fetch forecast by coordinates
 async function getForecastByCoords(lat, lon) {
     try {
         const response = await fetch(
             `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
         );
         const data = await response.json();
- 
-        // Show today's rain probability from first forecast entry
+
         const rainChance = Math.round((data.list[0].pop || 0) * 100);
         document.getElementById('rainChance').textContent = `${rainChance}%`;
- 
+
         displayForecast(data);
     } catch (error) {
         console.error('Forecast error:', error);
     }
 }
 
-// Fetch altitude from Open-Meteo (free, no API key needed)
+// Fetch altitude from Open-Meteo
 async function getAltitude(lat, lon) {
     try {
         const response = await fetch(
@@ -151,7 +149,7 @@ async function getAltitude(lat, lon) {
 // Convert wind degrees to compass direction
 function getWindDirection(degrees) {
     const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    const index = Math.round(degrees /45) % 8;
+    const index = Math.round(degrees / 45) % 8;
     return directions[index];
 }
 
@@ -165,14 +163,11 @@ async function displayWeather(data) {
     document.getElementById('wind').textContent = `${data.wind.speed} m/s`;
     document.getElementById('windDirection').textContent = getWindDirection(data.wind.deg);
     document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
-    document.getElementById('weatherIcon').src = 
+    document.getElementById('airPressure').textContent = `${data.main.pressure} hPa`;
+    document.getElementById('weatherIcon').src =
         `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
-    // Visibility - convert meters to KM
-    const visibilityKm = (data.visibility / 1000).toFixed(1);
-    document.getElementById('visibility').textContent = `${visibilityKm} km`;
-
-    // Sunnrise & Sunset
+    // Sunrise & Sunset
     const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('en', {
         hour: '2-digit',
         minute: '2-digit'
@@ -184,7 +179,7 @@ async function displayWeather(data) {
     document.getElementById('sunrise').textContent = sunrise;
     document.getElementById('sunset').textContent = sunset;
 
-    // Fetch and display altitude
+    // Altitude from Open-Meteo
     const altitudeEl = document.getElementById('altitude');
     altitudeEl.textContent = '...';
     const altitude = await getAltitude(data.coord.lat, data.coord.lon);
@@ -195,18 +190,17 @@ async function displayWeather(data) {
 
 // Display 5-day forecast
 function displayForecast(data) {
-    //Get one forecast per day (every 8th item = 24hrs apart)
     const daily = data.list.filter((_, index) => index % 8 === 0).slice(0, 5);
 
     forecastContainer.innerHTML = daily.map(day => `
         <div class="forecast-day">
-          <p>${new Date(day.dt * 1000).toLocaleDateString('en', { weekday: 'short' })}</p>
-          <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="${day.weather[0].description}" />
-          <p>${Math.round(day.main.temp)}°C</p>
-          <p>${day.weather[0].main}</p>
-          <p>🌧 ${Math.round((day.pop || 0) * 100)}%</p>
-          </div>
-        `).join('');
+            <p>${new Date(day.dt * 1000).toLocaleDateString('en', { weekday: 'short' })}</p>
+            <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="${day.weather[0].description}" />
+            <p>${Math.round(day.main.temp)}°C</p>
+            <p>${day.weather[0].main}</p>
+            <p>🌧 ${Math.round((day.pop || 0) * 100)}%</p>
+        </div>
+    `).join('');
 }
 
 function showError(msg) {
