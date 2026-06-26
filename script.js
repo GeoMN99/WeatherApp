@@ -87,10 +87,14 @@ async function getWeatherByCoords(lat, lon) {
         if (!response.ok) throw new Error('Location not found');
 
         const data = await response.json();
-        await displayWeather(data);
+
+        // Get accurate location name from Nominatim
+        const accurateLocation = await getReverseGeocode(lat, lon);
+
+        await displayWeather(data, accurateLocation);
         getForecastByCoords(lat, lon);
         localStorage.setItem('lastCity', data.name);
-        cityInput.value = data.name;
+        cityInput.value = accurateLocation || data.name;
 
     } catch (error) {
         showError('Could not get weather for your location.');
@@ -146,6 +150,35 @@ async function getAltitude(lat, lon) {
     }
 }
 
+// Reverse geocode coordinates to get accurate location name
+async function getReverseGeocode(lat, lon) {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+            {
+                headers: {
+                    'Accept-Language': 'en',
+                    'User-Agent': 'WeatherApp/1.0'
+                }
+            }
+        );
+        const data = await response.json();
+        const address = data.address;
+
+        // Build location string from most specific to least specific
+        const parts = [
+            address.road,
+            address.suburb || address.neighbourhood || address.city_district,
+            address.city || address.town || address.village,
+            address.country_code ? address.country_code.toUpperCase() : null
+        ].filter(Boolean);
+
+        return parts.join(', ');
+    } catch (error) {
+        return null;
+    }
+}
+
 // Convert wind degrees to compass direction
 function getWindDirection(degrees) {
     const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
@@ -154,8 +187,9 @@ function getWindDirection(degrees) {
 }
 
 // Display current weather
-async function displayWeather(data) {
-    document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
+async function displayWeather(data, accurateLocation = null) {
+    const locationName = accurateLocation || `${data.name}, ${data.sys.country}`;
+    document.getElementById('cityName').textContent = locationName;
     document.getElementById('date').textContent = new Date().toDateString();
     document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
     document.getElementById('description').textContent = data.weather[0].description;
