@@ -206,3 +206,4 @@ function showError(msg) {
 function hideError() {
     errorMsg.classList.add('hidden');
 }
+
