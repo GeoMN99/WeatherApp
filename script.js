@@ -1,5 +1,5 @@
-const API_KEY = 'cd4d8bafda629dbcb26154439759acd1';
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const API_KEY = 'c320dfb4e2ec4d9a805170232260207';
+const BASE_URL = 'https://api.weatherapi.com/v1';
 
 const cityInput = document.getElementById('cityInput');
 const searchBtn = document.getElementById('searchBtn');
@@ -17,6 +17,7 @@ window.addEventListener('load', () => {
     }
 });
 
+// Search by city name
 searchBtn.addEventListener('click', () => {
     const city = cityInput.value.trim();
     if (city) getWeather(city);
@@ -54,19 +55,19 @@ locationBtn.addEventListener('click', () => {
     );
 });
 
-// Fetch weather by city name
+// Fetch weather and forecast by city name
 async function getWeather(city) {
     try {
         hideError();
         const response = await fetch(
-            `${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric`
+            `${BASE_URL}/forecast.json?key=${API_KEY}&q=${city}&days=5&aqi=no&alerts=no`
         );
 
         if (!response.ok) throw new Error('City not found');
 
         const data = await response.json();
         await displayWeather(data);
-        getForecast(city);
+        displayForecast(data);
         localStorage.setItem('lastCity', city);
 
     } catch (error) {
@@ -76,64 +77,35 @@ async function getWeather(city) {
     }
 }
 
-// Fetch weather by coordinates
+// Fetch weather and forecast by coordinates
 async function getWeatherByCoords(lat, lon) {
     try {
         hideError();
         const response = await fetch(
-            `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+            `${BASE_URL}/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=5&aqi=no&alerts=no`
         );
 
         if (!response.ok) throw new Error('Location not found');
 
         const data = await response.json();
 
-        // Get accurate location name from Nominatim
-        const accurateLocation = await getReverseGeocode(lat, lon);
+        // Get accurate location name
+        let accurateLocation = null;
+        try {
+            accurateLocation = await getReverseGeocode(lat, lon);
+        } catch (geoError) {
+            console.warn('Reverse geocoding failed:', geoError);
+        }
 
         await displayWeather(data, accurateLocation);
-        getForecastByCoords(lat, lon);
-        localStorage.setItem('lastCity', data.name);
-        cityInput.value = accurateLocation || data.name;
+        displayForecast(data);
+        localStorage.setItem('lastCity', data.location.name);
+        cityInput.value = accurateLocation || data.location.name;
 
     } catch (error) {
         showError('Could not get weather for your location.');
         weatherCard.classList.add('hidden');
         forecastContainer.innerHTML = '';
-    }
-}
-
-// Fetch forecast by city name
-async function getForecast(city) {
-    try {
-        const response = await fetch(
-            `${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric`
-        );
-        const data = await response.json();
-
-        const rainChance = Math.round((data.list[0].pop || 0) * 100);
-        document.getElementById('rainChance').textContent = `${rainChance}%`;
-
-        displayForecast(data);
-    } catch (error) {
-        console.error('Forecast error:', error);
-    }
-}
-
-// Fetch forecast by coordinates
-async function getForecastByCoords(lat, lon) {
-    try {
-        const response = await fetch(
-            `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
-        );
-        const data = await response.json();
-
-        const rainChance = Math.round((data.list[0].pop || 0) * 100);
-        document.getElementById('rainChance').textContent = `${rainChance}%`;
-
-        displayForecast(data);
-    } catch (error) {
-        console.error('Forecast error:', error);
     }
 }
 
@@ -150,27 +122,21 @@ async function getAltitude(lat, lon) {
     }
 }
 
-// Reverse geocode coordinates to get accurate location name
+// Reverse geocode using WeatherAPI geocoding
 async function getReverseGeocode(lat, lon) {
     try {
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-            {
-                headers: {
-                    'Accept-Language': 'en',
-                    'User-Agent': 'WeatherApp/1.0'
-                }
-            }
+            `${BASE_URL}/search.json?key=${API_KEY}&q=${lat},${lon}`
         );
         const data = await response.json();
-        const address = data.address;
 
-        // Build location string from most specific to least specific
+        if (!data || data.length === 0) return null;
+
+        const location = data[0];
         const parts = [
-            address.road,
-            address.suburb || address.neighbourhood || address.city_district,
-            address.city || address.town || address.village,
-            address.country_code ? address.country_code.toUpperCase() : null
+            location.name,
+            location.region,
+            location.country
         ].filter(Boolean);
 
         return parts.join(', ');
@@ -188,35 +154,30 @@ function getWindDirection(degrees) {
 
 // Display current weather
 async function displayWeather(data, accurateLocation = null) {
-    const locationName = accurateLocation || `${data.name}, ${data.sys.country}`;
+    const loc = data.location;
+    const current = data.current;
+    const astro = data.forecast.forecastday[0].astro;
+    const today = data.forecast.forecastday[0].day;
+
+    const locationName = accurateLocation || `${loc.name}, ${loc.country}`;
     document.getElementById('cityName').textContent = locationName;
     document.getElementById('date').textContent = new Date().toDateString();
-    document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
-    document.getElementById('description').textContent = data.weather[0].description;
-    document.getElementById('humidity').textContent = `${data.main.humidity}%`;
-    document.getElementById('wind').textContent = `${data.wind.speed} m/s`;
-    document.getElementById('windDirection').textContent = getWindDirection(data.wind.deg);
-    document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
-    document.getElementById('airPressure').textContent = `${data.main.pressure} hPa`;
-    document.getElementById('weatherIcon').src =
-        `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-
-    // Sunrise & Sunset
-    const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString('en', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString('en', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    document.getElementById('sunrise').textContent = sunrise;
-    document.getElementById('sunset').textContent = sunset;
+    document.getElementById('temperature').textContent = `${Math.round(current.temp_c)}°C`;
+    document.getElementById('description').textContent = current.condition.text;
+    document.getElementById('humidity').textContent = `${current.humidity}%`;
+    document.getElementById('wind').textContent = `${current.wind_kph} km/h`;
+    document.getElementById('windDirection').textContent = getWindDirection(current.wind_degree);
+    document.getElementById('feelsLike').textContent = `${Math.round(current.feelslike_c)}°C`;
+    document.getElementById('airPressure').textContent = `${current.pressure_mb} hPa`;
+    document.getElementById('rainChance').textContent = `${today.daily_chance_of_rain}%`;
+    document.getElementById('weatherIcon').src = `https:${current.condition.icon}`;
+    document.getElementById('sunrise').textContent = astro.sunrise;
+    document.getElementById('sunset').textContent = astro.sunset;
 
     // Altitude from Open-Meteo
     const altitudeEl = document.getElementById('altitude');
     altitudeEl.textContent = '...';
-    const altitude = await getAltitude(data.coord.lat, data.coord.lon);
+    const altitude = await getAltitude(loc.lat, loc.lon);
     altitudeEl.textContent = altitude !== null ? `${altitude}m` : 'N/A';
 
     weatherCard.classList.remove('hidden');
@@ -224,15 +185,15 @@ async function displayWeather(data, accurateLocation = null) {
 
 // Display 5-day forecast
 function displayForecast(data) {
-    const daily = data.list.filter((_, index) => index % 8 === 0).slice(0, 5);
+    const forecastDays = data.forecast.forecastday;
 
-    forecastContainer.innerHTML = daily.map(day => `
+    forecastContainer.innerHTML = forecastDays.map(day => `
         <div class="forecast-day">
-            <p>${new Date(day.dt * 1000).toLocaleDateString('en', { weekday: 'short' })}</p>
-            <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="${day.weather[0].description}" />
-            <p>${Math.round(day.main.temp)}°C</p>
-            <p>${day.weather[0].main}</p>
-            <p>🌧 ${Math.round((day.pop || 0) * 100)}%</p>
+            <p>${new Date(day.date).toLocaleDateString('en', { weekday: 'short' })}</p>
+            <img src="https:${day.day.condition.icon}" alt="${day.day.condition.text}" />
+            <p>${Math.round(day.day.avgtemp_c)}°C</p>
+            <p>${day.day.condition.text}</p>
+            <p>🌧 ${day.day.daily_chance_of_rain}%</p>
         </div>
     `).join('');
 }
